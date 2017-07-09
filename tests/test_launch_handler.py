@@ -27,7 +27,7 @@ class TestLaunchIntentHandler(unittest.TestCase):
             {
                 'text': "Welcome to Pollen Count, you can request the pollen count for your "\
                  "current location by saying 'give me an update'. You can also ask for "\
-                 "the count anywhere in the UK by asking, 'what is the pollen count is in "\
+                 "the count anywhere in the UK by asking, 'what is the pollen count in "\
                  "Glasgow'. How can I help? ",
                 'type': "PlainText"})
 
@@ -38,7 +38,7 @@ class TestLaunchIntentHandler(unittest.TestCase):
                 'title': "Welcome",
                 'content': "Welcome to Pollen Count, you can request the pollen count for your "\
                  "current location by saying 'give me an update'. You can also ask for "\
-                 "the count anywhere in the UK by asking, 'what is the pollen count is in "\
+                 "the count anywhere in the UK by asking, 'what is the pollen count in "\
                  "Glasgow'. How can I help? ",
                 'type': "Simple"})
 

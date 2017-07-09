@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+    AlexaSkillId:
+        Type: String
+    LambdaTag:
+        Type: String
+
+Resources:
+    LambdaExecutionRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Principal:
+                        Service: "lambda.amazonaws.com"
+                    Action: "sts:AssumeRole"
+            Policies:
+            -   PolicyName: "AlexaSkillCloudWatchLogsAccess"
+                PolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                    -   Effect: Allow
+                        Action:
+                        -   logs:CreateLogGroup
+                        -   logs:CreateLogStream
+                        -   logs:PutLogEvents
+                        Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+
+    Lambda:
+        Type: "AWS::Lambda::Function"
+        Properties:
+            Environment:
+                Variables:
+                    SKILL_ID: !Ref AlexaSkillId
+            Handler: handler.lambda_handler
+            Role: !GetAtt LambdaExecutionRole.Arn
+            Code:
+                S3Bucket: "bazwilliams.lambdas"
+                S3Key: !Sub "pollen-count-${LambdaTag}.zip"
+            Runtime: "python3.6"
+            Timeout: 10
+
+    AlexaSkillFunctionPermissions:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            FunctionName: !Ref Lambda
+            Action: lambda:InvokeFunction
+            Principal: alexa-appkit.amazon.com

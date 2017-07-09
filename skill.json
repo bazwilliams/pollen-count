@@ -1,0 +1,89 @@
+{
+  "intents": [
+    {
+      "name": "AMAZON.CancelIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.HelpIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.StopIntent",
+      "samples": []
+    },
+    {
+      "name": "HomeRequestIntent",
+      "samples": [
+        "what is it like out there",
+        "what the pollen count is",
+        "for an update",
+        "give me an update",
+        "for information",
+        "for a report",
+        "give me an update for here"
+      ],
+      "slots": []
+    },
+    {
+      "name": "LocationRequestIntent",
+      "samples": [
+        "give me a report for {Location}",
+        "what is it like in {Location}",
+        "for information about {Location}"
+      ],
+      "slots": [
+        {
+          "name": "Location",
+          "type": "AMAZON.GB_CITY",
+          "samples": [
+            "{Location}",
+            "in {Location}"
+          ]
+        }
+      ]
+    }
+  ],
+  "prompts": [
+    {
+      "id": "Elicit.Intent-LocationRequestIntent.IntentSlot-Location",
+      "promptVersion": "1.0",
+      "definitionVersion": "1.0",
+      "variations": [
+        {
+          "type": "PlainText",
+          "value": "For which UK city? "
+        },
+        {
+          "type": "PlainText",
+          "value": "Whereabouts in the UK?"
+        },
+        {
+          "type": "PlainText",
+          "value": "I never caught the city, can you tell me which city please? "
+        }
+      ]
+    }
+  ],
+  "dialog": {
+    "version": "1.0",
+    "intents": [
+      {
+        "name": "LocationRequestIntent",
+        "confirmationRequired": false,
+        "prompts": {},
+        "slots": [
+          {
+            "name": "Location",
+            "type": "AMAZON.GB_CITY",
+            "elicitationRequired": true,
+            "confirmationRequired": false,
+            "prompts": {
+              "elicit": "Elicit.Intent-LocationRequestIntent.IntentSlot-Location"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

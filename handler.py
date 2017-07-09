@@ -103,7 +103,7 @@ def get_welcome_response():
     speech_output = "Welcome to Pollen Count, you can request the pollen count " \
                     "for your current location by saying 'give me an update'. " \
                     "You can also ask for the count anywhere in the UK by asking, " \
-                    "'what is the pollen count is in Glasgow'. How can I help? "
+                    "'what is the pollen count in Glasgow'. How can I help? "
     reprompt_text = "Please tell me how I can help? " \
                     "For example; give me an update."
     should_end_session = False
