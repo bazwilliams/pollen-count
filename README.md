@@ -1,31 +1,37 @@
-#Intents
+#Development
 
-AMAZON.CancelIntent
-AMAZON.StopIntent
-- Close session
+```bash
+python3 -m venv env
+pip install pytest
+pip install mock
+```
 
-LaunchRequest
-AMAZON.HelpIntent
-- Welcome to pollen count, you can request the pollen count for your current location by saying, "give me an update". You can also ask for the count anywhere in the UK by asking "what the pollen count is in Glasgow". 
-- Leave the session open. 
+#Running
 
-HomeRequestIntent
-- Lookup location of originating device
-- PollenCount(City)
-LocationRequestIntent
-- Lookup location of provided device
-- PollenCount(City)
+```bash
+pip install -r requirements.txt
+```
+
+## Intents
+
+[x] AMAZON.CancelIntent
+[x] AMAZON.StopIntent
+[x] LaunchRequest
+[x] AMAZON.HelpIntent
+[] HomeRequestIntent
+[x] LocationRequestIntent
+
+## Helper Functions
+GetCity(Device)
+[] Look up city or postcode of originating device
 
 PollenCount(City)
-- Convert to lat long
-- Find pollen count
-- The pollen count in {Location} is {pollen_count}
-- Close session
+[] Convert city or postcode to lat long
+[x] Find pollen count from lat long
 
+### Information
 Need a service to convert an address to lat + long:
 https://developer.yahoo.com/geo/placefinder/
 
 Use pypollen
 https://github.com/kylegordon/pypollen
-
-pip install pypollen
