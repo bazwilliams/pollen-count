@@ -1,9 +1,7 @@
 
-"""Test the pollen count handler."""
-
 import unittest
-import handler as sut
 import os
+import handler as sut
 
 class TestLaunchIntentHandler(unittest.TestCase):
     def setUp(self):

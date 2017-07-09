@@ -6,6 +6,8 @@ from __future__ import print_function
 
 import os
 
+from pypollen import Pollen
+
 def lambda_handler(event, context):
     """ Route the incoming request based on type (LaunchRequest, IntentRequest,
     etc.) The JSON body of the request is provided in the event parameter.
@@ -56,10 +58,8 @@ def on_intent(intent_request, session):
     intent_name = intent_request['intent']['name']
 
     # Dispatch to your skill's intent handlers
-    if intent_name == "MyColorIsIntent":
-        return set_color_in_session(intent, session)
-    elif intent_name == "WhatsMyColorIntent":
-        return get_color_from_session(intent, session)
+    if intent_name == "LocationRequestIntent":
+        return handle_location_request(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
@@ -80,38 +80,62 @@ def on_session_ended(session_ended_request, session):
 # --------------- Functions that control the skill's behavior ------------------
 
 
+def handle_location_request(intent, session):
+    """ Handle a request for a specified City """
+
+    city = intent['slots']['Location']['value']
+    pollen_count = get_pollen_count(city)
+
+    session_attributes = {}
+    card_title = "Pollen Count"
+    speech_output = "Today in %s, the Pollen Count is %s" % (city, pollen_count)
+    reprompt_text = None
+    should_end_session = True
+
+    return build_response(session_attributes, build_speechlet_response(
+        card_title, speech_output, reprompt_text, should_end_session))
+
 def get_welcome_response():
-    """ If we wanted to initialize the session to have some attributes we could
-    add those here
-    """
+    """ Welcome the user and suggest an utterance """
 
     session_attributes = {}
     card_title = "Welcome"
-
     speech_output = "Welcome to Pollen Count, you can request the pollen count " \
                     "for your current location by saying 'give me an update'. " \
                     "You can also ask for the count anywhere in the UK by asking, " \
                     "'what is the pollen count is in Glasgow'. How can I help? "
-    # If the user either does not reply to the welcome message or says something
-    # that is not understood, they will be prompted again with this text.
     reprompt_text = "Please tell me how I can help? " \
                     "For example; give me an update."
     should_end_session = False
+
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
 
 def handle_session_end_request():
-    speech_output = "Thank you for using Pollen Count. " \
-                    "Have a nice day! "
-    # Setting this to true ends the session and exits the skill.
+    """ Polite goodbye message when ending the request early"""
+
+    speech_output = "Thank you for using Pollen Count. Have a nice day! "
     should_end_session = True
+
     return build_response({}, build_speech_response(
         speech_output, None, should_end_session))
+
+# --------------- Library -------------------
+
+def get_pollen_count(city):
+    """ Given the city, download the pollen count """
+    (lat, long) = get_lat_long(city)
+    return Pollen(lat, long).pollencount
+
+def get_lat_long(city):
+    """ Given a UK City, find the lat long """
+    return (55.8642, -4.2518)
 
 # --------------- Helpers that build all of the responses ----------------------
 
 def build_speech_response(output, reprompt_text, should_end_session):
+    """ Build a response containing only speech """
     return {
         'outputSpeech': {
             'type': 'PlainText',
@@ -128,6 +152,7 @@ def build_speech_response(output, reprompt_text, should_end_session):
 
 
 def build_speechlet_response(title, output, reprompt_text, should_end_session):
+    """ Build a response containing both speech and a card """
     return {
         'outputSpeech': {
             'type': 'PlainText',
@@ -149,6 +174,7 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
 
 
 def build_response(session_attributes, speechlet_response):
+    """ Standard response """
     return {
         'version': '1.0',
         'sessionAttributes': session_attributes,

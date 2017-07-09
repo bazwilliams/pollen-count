@@ -2,7 +2,7 @@ import unittest
 import os
 import handler as sut
 
-class TestStopIntentHandler(unittest.TestCase):
+class TestCancelIntentHandler(unittest.TestCase):
     def setUp(self):
         os.environ['SKILL_ID'] = "TEST_SKILL_ID"
         self.context = {}
@@ -14,10 +14,10 @@ class TestStopIntentHandler(unittest.TestCase):
                 }
             },
             'request': {
-                'requestId': 'test-stoprequest',
+                'requestId': 'test-cancelrequest',
                 'type': 'IntentRequest',
                 'intent': {
-                    'name': 'AMAZON.StopIntent'
+                    'name': 'AMAZON.CancelIntent'
                 }
             }
         }

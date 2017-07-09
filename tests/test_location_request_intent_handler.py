@@ -1,8 +1,10 @@
 import unittest
 import os
+import mock
 import handler as sut
 
-class TestStopIntentHandler(unittest.TestCase):
+class TestLocationRequestIntentHandler(unittest.TestCase):
+    @mock.patch.object(sut.Pollen, 'pollencount', "Awful")
     def setUp(self):
         os.environ['SKILL_ID'] = "TEST_SKILL_ID"
         self.context = {}
@@ -14,10 +16,16 @@ class TestStopIntentHandler(unittest.TestCase):
                 }
             },
             'request': {
-                'requestId': 'test-stoprequest',
+                'requestId': 'test-locationrequest',
                 'type': 'IntentRequest',
                 'intent': {
-                    'name': 'AMAZON.StopIntent'
+                    'name': 'LocationRequestIntent',
+                    'slots': {
+                        'Location': {
+                            'name': 'Location',
+                            'value': 'glasgow'
+                        }
+                    }
                 }
             }
         }
@@ -27,11 +35,16 @@ class TestStopIntentHandler(unittest.TestCase):
         self.assertEqual(
             self.result['response']['outputSpeech'],
             {
-                'text': "Thank you for using Pollen Count. Have a nice day! ",
+                'text': "Today in glasgow, the Pollen Count is Awful",
                 'type': "PlainText"})
 
-    def testShouldNotHaveCard(self):
-        self.assertFalse(self.result['response'].get('card'))
+    def testCard(self):
+        self.assertEqual(
+            self.result['response']['card'],
+            {
+                'title': "Pollen Count",
+                'content': "Today in glasgow, the Pollen Count is Awful",
+                'type': "Simple"})
 
     def testShouldEndSession(self):
         self.assertTrue(self.result['response']['shouldEndSession'])
