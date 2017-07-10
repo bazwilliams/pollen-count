@@ -12,26 +12,20 @@ pip install mock
 pip install -r requirements.txt
 ```
 
-## Intents
+#Packaging
 
-[x] AMAZON.CancelIntent
-[x] AMAZON.StopIntent
-[x] LaunchRequest
-[x] AMAZON.HelpIntent
-[] HomeRequestIntent
-[x] LocationRequestIntent
+```bash
+./package.hs
+```
 
-## Helper Functions
-GetCity(Device)
-[] Look up city or postcode of originating device
+#Deploying
 
-PollenCount(City)
-[] Convert city or postcode to lat long
-[x] Find pollen count from lat long
+```bash
+LAMBDA_TAG=n ./deploy.sh
+```
 
-### Information
-Need a service to convert an address to lat + long:
-https://developer.yahoo.com/geo/placefinder/
+#Credits
 
-Use pypollen
 https://github.com/kylegordon/pypollen
+
+Icon downloaded from https://www.iconfinder.com/icons/1320036/badge_go_pin_pokemon_sunflower_icon
