@@ -7,6 +7,7 @@ from __future__ import print_function
 import os
 
 from pypollen import Pollen
+from geopy.geocoders import Nominatim
 
 def lambda_handler(event, context):
     """ Route the incoming request based on type (LaunchRequest, IntentRequest,
@@ -84,22 +85,36 @@ def handle_location_request(intent, session):
     """ Handle a request for a specified City """
 
     city = intent['slots']['Location']['value']
-    pollen_count = get_pollen_count(city)
-
     session_attributes = {}
-    card_title = "Pollen Count"
-    speech_output = "Today in %s, the Pollen Count is %s" % (city, pollen_count)
-    reprompt_text = None
-    should_end_session = True
 
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
+    try:
+        pollen_count = get_pollen_count(city)
+
+        card_title = "Pollen Count"
+        should_end_session = True
+        reprompt_text = None
+        speech_output = "Today in %s, the Pollen Count is %s" % (city, pollen_count)
+
+        return build_response(session_attributes, build_speechlet_response(
+            card_title, speech_output, reprompt_text, should_end_session))
+    except ValueError:
+        should_end_session = False
+        speech_output = "I'm sorry, I was not able to lookup %s. "\
+                 "You can request the pollen count for your "\
+                 "current location by saying 'give me an update'. You can also ask for "\
+                 "the count anywhere in the UK by asking, 'what is the pollen count in "\
+                 "Glasgow'. How can I help? " % city
+        reprompt_text = "Please tell me how I can help? " \
+                        "For example; give me an update."
+        should_end_session = False
+
+        return build_response(session_attributes, build_speech_response(
+            speech_output, reprompt_text, should_end_session))
 
 def get_welcome_response():
     """ Welcome the user and suggest an utterance """
 
     session_attributes = {}
-    card_title = "Welcome"
     speech_output = "Welcome to Pollen Count, you can request the pollen count " \
                     "for your current location by saying 'give me an update'. " \
                     "You can also ask for the count anywhere in the UK by asking, " \
@@ -108,8 +123,8 @@ def get_welcome_response():
                     "For example; give me an update."
     should_end_session = False
 
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
+    return build_response(session_attributes, build_speech_response(
+        speech_output, reprompt_text, should_end_session))
 
 
 def handle_session_end_request():
@@ -130,7 +145,15 @@ def get_pollen_count(city):
 
 def get_lat_long(city):
     """ Given a UK City, find the lat long """
-    return (55.8642, -4.2518)
+    geolocator = Nominatim(country_bias="gb",
+                           user_agent="pollen_count_backend")
+    location = geolocator.geocode(city)
+    if location:
+        print("Nominatim Lookup for %s gives [%s, %s]" %
+              (city, location.latitude, location.longitude))
+        return (location.latitude, location.longitude)
+
+    raise ValueError("Nominatim Lookup failed for %s" % city)
 
 # --------------- Helpers that build all of the responses ----------------------
 

@@ -3,18 +3,8 @@ import os
 import mock
 import handler as sut
 
-class fakeLocation():
-    @property
-    def latitude(self):
-        return 55.8642
-    
-    @property
-    def longitude(self):
-        return -4.2518
-
-class TestLocationRequestIntentHandler(unittest.TestCase):
-    @mock.patch.object(sut.Pollen, 'pollencount', "Awful")
-    @mock.patch.object(sut.Nominatim, 'geocode', lambda self,city: fakeLocation())
+class TestLocationRequestIntentHandlerLocationFailure(unittest.TestCase):
+    @mock.patch.object(sut.Nominatim, 'geocode', lambda self,city: None)
     def setUp(self):
         os.environ['SKILL_ID'] = "TEST_SKILL_ID"
         self.context = {}
@@ -33,7 +23,7 @@ class TestLocationRequestIntentHandler(unittest.TestCase):
                     'slots': {
                         'Location': {
                             'name': 'Location',
-                            'value': 'glasgow'
+                            'value': 'neverland'
                         }
                     }
                 }
@@ -45,19 +35,18 @@ class TestLocationRequestIntentHandler(unittest.TestCase):
         self.assertEqual(
             self.result['response']['outputSpeech'],
             {
-                'text': "Today in glasgow, the Pollen Count is Awful",
+                'text': "I'm sorry, I was not able to lookup neverland. "\
+                 "You can request the pollen count for your "\
+                 "current location by saying 'give me an update'. You can also ask for "\
+                 "the count anywhere in the UK by asking, 'what is the pollen count in "\
+                 "Glasgow'. How can I help? ",
                 'type': "PlainText"})
 
-    def testCard(self):
-        self.assertEqual(
-            self.result['response']['card'],
-            {
-                'title': "Pollen Count",
-                'content': "Today in glasgow, the Pollen Count is Awful",
-                'type': "Simple"})
+    def testShouldNotHaveCard(self):
+        self.assertFalse(self.result['response'].get('card'))
 
-    def testShouldEndSession(self):
-        self.assertTrue(self.result['response']['shouldEndSession'])
+    def testShouldNotEndSession(self):
+        self.assertFalse(self.result['response']['shouldEndSession'])
 
     def testResponse(self):
         self.assertEqual(self.result['sessionAttributes'], {})

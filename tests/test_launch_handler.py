@@ -1,4 +1,3 @@
-
 import unittest
 import os
 import handler as sut
@@ -31,16 +30,8 @@ class TestLaunchIntentHandler(unittest.TestCase):
                  "Glasgow'. How can I help? ",
                 'type': "PlainText"})
 
-    def testCard(self):
-        self.assertEqual(
-            self.result['response']['card'],
-            {
-                'title': "Welcome",
-                'content': "Welcome to Pollen Count, you can request the pollen count for your "\
-                 "current location by saying 'give me an update'. You can also ask for "\
-                 "the count anywhere in the UK by asking, 'what is the pollen count in "\
-                 "Glasgow'. How can I help? ",
-                'type': "Simple"})
+    def testShouldNotHaveCard(self):
+        self.assertFalse(self.result['response'].get('card'))
 
     def testShouldNotEndSession(self):
         self.assertFalse(self.result['response']['shouldEndSession'])
