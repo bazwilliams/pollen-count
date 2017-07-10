@@ -19,7 +19,8 @@ class TestCancelIntentHandler(unittest.TestCase):
                 'intent': {
                     'name': 'AMAZON.CancelIntent'
                 }
-            }
+            },
+            'context':{}
         }
         self.result = sut.lambda_handler(self.event, self.context)
 

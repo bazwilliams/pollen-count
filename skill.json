@@ -21,6 +21,7 @@
         "give me an update",
         "for information",
         "for a report",
+        "give me an update",
         "give me an update for here"
       ],
       "slots": []
@@ -28,6 +29,9 @@
     {
       "name": "LocationRequestIntent",
       "samples": [
+        "for an update on {Location}",
+        "give me an update on {Location}",
+        "for a report on {Location}",
         "give me a report for {Location}",
         "what is it like in {Location}",
         "for information about {Location}"

@@ -3,6 +3,26 @@ import os
 import mock
 import handler as sut
 
+class fakeAddress():
+    def __init__(self, uri, *args, headers=None, allow_redirects=False):
+        return
+
+    @property
+    def status_code(self):
+        return 200
+
+    def json(self):
+        return {
+            "stateOrRegion" : "",
+            "city" : "Glasgow",
+            "countryCode" : "UK",
+            "postalCode" : "",
+            "addressLine1" : "",
+            "addressLine2" : "",
+            "addressLine3" : "",
+            "districtOrCounty" : ""
+        }
+
 class fakeLocation():
     @property
     def latitude(self):
@@ -12,12 +32,14 @@ class fakeLocation():
     def longitude(self):
         return -4.2518
 
-class TestLocationRequestIntentHandler(unittest.TestCase):
+class TestHomeRequestIntentHandler(unittest.TestCase):
     @mock.patch.object(sut.Pollen, 'pollencount', "Awful")
     @mock.patch.object(sut.Nominatim, 'geocode', lambda self, city: fakeLocation())
+    @mock.patch.object(sut.requests, 'get', fakeAddress)
     def setUp(self):
         os.environ['SKILL_ID'] = "TEST_SKILL_ID"
-        self.context = {}
+        self.context = {
+        }
         self.event = {
             'session': {
                 'sessionId': 'unittest',
@@ -26,19 +48,25 @@ class TestLocationRequestIntentHandler(unittest.TestCase):
                 }
             },
             'request': {
-                'requestId': 'test-locationrequest',
+                'requestId': 'test-homerequest',
                 'type': 'IntentRequest',
                 'intent': {
-                    'name': 'LocationRequestIntent',
-                    'slots': {
-                        'Location': {
-                            'name': 'Location',
-                            'value': 'glasgow'
-                        }
-                    }
+                    'name': 'HomeRequestIntent'
                 }
             },
-            'context':{}
+            'context': {
+                'System': {
+                    'user': {
+                        'permissions': {
+                            'consentToken': 'TEST_CONSENT_TOKEN'
+                        },
+                    },
+                    'device': {
+                        'deviceId': 'TEST_DEVICE_ID'
+                    },
+                    'apiEndpoint': 'https://api.eu.amazonalexa.com'
+                }
+            }
         }
         self.result = sut.lambda_handler(self.event, self.context)
 
@@ -46,7 +74,7 @@ class TestLocationRequestIntentHandler(unittest.TestCase):
         self.assertEqual(
             self.result['response']['outputSpeech'],
             {
-                'text': "Today in glasgow, the Pollen Count is Awful",
+                'text': "Today in Glasgow, the Pollen Count is Awful",
                 'type': "PlainText"})
 
     def testCard(self):
@@ -54,7 +82,7 @@ class TestLocationRequestIntentHandler(unittest.TestCase):
             self.result['response']['card'],
             {
                 'title': "Pollen Count",
-                'content': "Today in glasgow, the Pollen Count is Awful",
+                'content': "Today in Glasgow, the Pollen Count is Awful",
                 'type': "Simple"})
 
     def testShouldEndSession(self):

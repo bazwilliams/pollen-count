@@ -8,6 +8,7 @@ import os
 
 from pypollen import Pollen
 from geopy.geocoders import Nominatim
+import requests
 
 def lambda_handler(event, context):
     """ Route the incoming request based on type (LaunchRequest, IntentRequest,
@@ -26,7 +27,7 @@ def lambda_handler(event, context):
     if event['request']['type'] == "LaunchRequest":
         return on_launch(event['request'], event['session'])
     elif event['request']['type'] == "IntentRequest":
-        return on_intent(event['request'], event['session'])
+        return on_intent(event['request'], event['session'], event['context'])
     elif event['request']['type'] == "SessionEndedRequest":
         return on_session_ended(event['request'], event['session'])
 
@@ -49,18 +50,20 @@ def on_launch(launch_request, session):
     return get_welcome_response()
 
 
-def on_intent(intent_request, session):
+def on_intent(intent_request, session, context):
     """ Called when the user specifies an intent for this skill """
-
-    print("on_intent requestId=" + intent_request['requestId'] +
-          ", sessionId=" + session['sessionId'])
 
     intent = intent_request['intent']
     intent_name = intent_request['intent']['name']
 
+    print("on_intent requestId=" + intent_request['requestId'] +
+          ", sessionId=" + session['sessionId'] + ", intentName=" + intent_name)
+
     # Dispatch to your skill's intent handlers
     if intent_name == "LocationRequestIntent":
-        return handle_location_request(intent, session)
+        return handle_location_request(intent)
+    elif intent_name == "HomeRequestIntent":
+        return handle_home_request(context)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
@@ -81,10 +84,25 @@ def on_session_ended(session_ended_request, session):
 # --------------- Functions that control the skill's behavior ------------------
 
 
-def handle_location_request(intent, session):
+def handle_home_request(context):
+    """ Handle a request for home """
+
+    city = get_home_city(context)
+
+    if city:
+        return handle_request(city)
+    else:
+        print("Requesting permission")
+        return build_response({}, build_permissions_response())
+
+def handle_location_request(intent):
     """ Handle a request for a specified City """
 
     city = intent['slots']['Location']['value']
+    return handle_request(city)
+
+def handle_request(city):
+    """ Handle a request for the provided city """
     session_attributes = {}
 
     try:
@@ -138,6 +156,36 @@ def handle_session_end_request():
 
 # --------------- Library -------------------
 
+def get_home_city(context):
+    """ Using the context, lookup the device's address """
+
+    device_id = context['System']['device']['deviceId']
+    consent_token = context['System']['user']['permissions'].get('consentToken')
+    api_endpoint = context['System']['apiEndpoint']
+
+    if consent_token:
+        url = api_endpoint \
+            + "/v1/devices/" + device_id \
+            + "/settings/address"
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": "Bearer " + consent_token
+        }
+
+        json = {}
+
+        init_res = requests.get(url, headers=headers, allow_redirects=False)
+        if init_res.status_code == 307:
+            api_response = requests.get(init_res.headers['Location'],
+                                        headers=headers, allow_redirects=False)
+            if api_response.status_code == 200:
+                json = api_response.json()
+        elif init_res.status_code == 200:
+            json = init_res.json()
+
+        return json['city']
+
 def get_pollen_count(city):
     """ Given the city, download the pollen count """
     (lat, long) = get_lat_long(city)
@@ -156,6 +204,25 @@ def get_lat_long(city):
     raise ValueError("Nominatim Lookup failed for %s" % city)
 
 # --------------- Helpers that build all of the responses ----------------------
+
+def build_permissions_response():
+    """ Build a response containing only speech """
+    output = "I'm sorry, I was not able to lookup your home town. "\
+             "With your permission, I can provide you with this information. "\
+             "Please check your companion app for details"
+    return {
+        'outputSpeech': {
+            'type': 'PlainText',
+            'text': output
+        },
+        'card': {
+            'type': 'AskForPermissionsConsent',
+            'permissions': [
+                'read::alexa:device:all:address'
+            ]
+        },
+        'shouldEndSession': True
+    }
 
 def build_speech_response(output, reprompt_text, should_end_session):
     """ Build a response containing only speech """

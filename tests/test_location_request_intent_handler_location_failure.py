@@ -4,7 +4,7 @@ import mock
 import handler as sut
 
 class TestLocationRequestIntentHandlerLocationFailure(unittest.TestCase):
-    @mock.patch.object(sut.Nominatim, 'geocode', lambda self,city: None)
+    @mock.patch.object(sut.Nominatim, 'geocode', lambda self, city: None)
     def setUp(self):
         os.environ['SKILL_ID'] = "TEST_SKILL_ID"
         self.context = {}
@@ -27,7 +27,8 @@ class TestLocationRequestIntentHandlerLocationFailure(unittest.TestCase):
                         }
                     }
                 }
-            }
+            },
+            'context':{}
         }
         self.result = sut.lambda_handler(self.event, self.context)
 

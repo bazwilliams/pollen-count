@@ -16,7 +16,8 @@ class TestLaunchIntentHandler(unittest.TestCase):
             'request': {
                 'requestId': 'test-launchrequest',
                 'type': 'LaunchRequest'
-            }
+            },
+            'context':{}
         }
         self.result = sut.lambda_handler(self.event, self.context)
 
