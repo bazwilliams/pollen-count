@@ -23,7 +23,7 @@ pytest ./tests
 ## Packaging
 
 ```bash
-./package.hs
+./package.sh
 ```
 
 ## Deploying
