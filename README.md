@@ -6,11 +6,11 @@ The skill and lambda backend for the Pollen Count Alexa Skill.
 
 ```bash
 python3 -m venv env
+
+source ./env/bin/activate
+
 pip install pytest
 pip install mock
-```
-
-```bash
 pip install -r requirements.txt
 ```
 

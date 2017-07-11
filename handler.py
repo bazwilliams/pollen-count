@@ -124,7 +124,6 @@ def handle_request(city):
                  "Glasgow'. How can I help? " % city
         reprompt_text = "Please tell me how I can help? " \
                         "For example; give me an update."
-        should_end_session = False
 
         return build_response(session_attributes, build_speech_response(
             speech_output, reprompt_text, should_end_session))
@@ -189,7 +188,12 @@ def get_home_city(context):
 def get_pollen_count(city):
     """ Given the city, download the pollen count """
     (lat, long) = get_lat_long(city)
-    return Pollen(lat, long).pollencount
+    pollen = Pollen(lat, long).pollencount
+
+    if pollen:
+        return pollen
+
+    raise ValueError("Pollen Lookup failed for [%s, %s]" % (lat, long))
 
 def get_lat_long(city):
     """ Given a UK City, find the lat long """
@@ -197,8 +201,6 @@ def get_lat_long(city):
                            user_agent="pollen_count_backend")
     location = geolocator.geocode(city)
     if location:
-        print("Nominatim Lookup for %s gives [%s, %s]" %
-              (city, location.latitude, location.longitude))
         return (location.latitude, location.longitude)
 
     raise ValueError("Nominatim Lookup failed for %s" % city)
