@@ -1,4 +1,8 @@
-#Development
+# Pollen Count
+
+The skill and lambda backend for the Pollen Count Alexa Skill. 
+
+## Development
 
 ```bash
 python3 -m venv env
@@ -6,25 +10,29 @@ pip install pytest
 pip install mock
 ```
 
-#Running
-
 ```bash
 pip install -r requirements.txt
 ```
 
-#Packaging
+## Testing
+
+```bash
+pytest ./tests
+```
+
+## Packaging
 
 ```bash
 ./package.hs
 ```
 
-#Deploying
+## Deploying
 
 ```bash
 LAMBDA_TAG=n ./deploy.sh
 ```
 
-#Credits
+## Credits
 
 https://github.com/kylegordon/pypollen
 
