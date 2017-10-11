@@ -108,13 +108,22 @@ def handle_request(city):
     try:
         pollen_count = get_pollen_count(city)
 
-        card_title = "Pollen Count"
-        should_end_session = True
-        reprompt_text = None
-        speech_output = "Today in %s, the Pollen Count is %s" % (city, pollen_count)
+        if (pollen_count is not None):
+            card_title = "Pollen Count"
+            should_end_session = True
+            reprompt_text = None
+            speech_output = "Today in %s, the Pollen Count is %s" % (city, pollen_count)
 
-        return build_response(session_attributes, build_speechlet_response(
-            card_title, speech_output, reprompt_text, should_end_session))
+            return build_response(session_attributes, build_speechlet_response(
+                card_title, speech_output, reprompt_text, should_end_session))
+        else:
+            should_end_session = True
+            reprompt_text = None
+            speech_output = "I'm sorry, but there is currently no pollen count data "\
+                "for %s." % city
+
+            return build_response(session_attributes, build_speech_response(
+                speech_output, reprompt_text, should_end_session))
     except ValueError:
         should_end_session = False
         speech_output = "I'm sorry, I was not able to lookup %s. "\
@@ -188,12 +197,7 @@ def get_home_city(context):
 def get_pollen_count(city):
     """ Given the city, download the pollen count """
     (lat, long) = get_lat_long(city)
-    pollen = Pollen(lat, long).pollencount
-
-    if pollen:
-        return pollen
-
-    raise ValueError("Pollen Lookup failed for [%s, %s]" % (lat, long))
+    return Pollen(lat, long).pollencount
 
 def get_lat_long(city):
     """ Given a UK City, find the lat long """

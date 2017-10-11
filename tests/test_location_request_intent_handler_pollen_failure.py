@@ -46,18 +46,15 @@ class TestLocationRequestIntentHandlerPollenFailure(unittest.TestCase):
         self.assertEqual(
             self.result['response']['outputSpeech'],
             {
-                'text': "I'm sorry, I was not able to lookup glasgow. "\
-                 "You can request the pollen count for your "\
-                 "current location by saying 'give me an update'. You can also ask for "\
-                 "the count anywhere in the UK by asking, 'what is the pollen count in "\
-                 "Glasgow'. How can I help? ",
+                'text': "I'm sorry, but there is currently no pollen count data "\
+                    "for glasgow.",
                 'type': "PlainText"})
 
     def testShouldNotHaveCard(self):
         self.assertFalse(self.result['response'].get('card'))
 
-    def testShouldNotEndSession(self):
-        self.assertFalse(self.result['response']['shouldEndSession'])
+    def testShouldEndSession(self):
+        self.assertTrue(self.result['response']['shouldEndSession'])
 
     def testResponse(self):
         self.assertEqual(self.result['sessionAttributes'], {})
