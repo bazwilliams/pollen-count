@@ -46,7 +46,7 @@ class TestLocationRequestIntentHandlerPollenFailure(unittest.TestCase):
         self.assertEqual(
             self.result['response']['outputSpeech'],
             {
-                'text': "I'm sorry, but there is currently no pollen count data "\
+                'text': "I'm sorry, but there is currently no pollen count "\
                     "for glasgow.",
                 'type': "PlainText"})
 

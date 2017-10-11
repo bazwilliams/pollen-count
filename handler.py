@@ -119,7 +119,7 @@ def handle_request(city):
         else:
             should_end_session = True
             reprompt_text = None
-            speech_output = "I'm sorry, but there is currently no pollen count data "\
+            speech_output = "I'm sorry, but there is currently no pollen count "\
                 "for %s." % city
 
             return build_response(session_attributes, build_speech_response(
