@@ -120,7 +120,8 @@ def handle_request(city):
             should_end_session = True
             reprompt_text = None
             speech_output = "I'm sorry, but there is currently no pollen count "\
-                "for %s." % city
+                "for %s. Pollen Count is only available within the UK "\
+                "and only during the pollen season." % city
 
             return build_response(session_attributes, build_speech_response(
                 speech_output, reprompt_text, should_end_session))

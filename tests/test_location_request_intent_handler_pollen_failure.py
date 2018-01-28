@@ -47,7 +47,8 @@ class TestLocationRequestIntentHandlerPollenFailure(unittest.TestCase):
             self.result['response']['outputSpeech'],
             {
                 'text': "I'm sorry, but there is currently no pollen count "\
-                    "for glasgow.",
+                    "for glasgow. Pollen Count is only available within "\
+                    "the UK and only during the pollen season.",
                 'type': "PlainText"})
 
     def testShouldNotHaveCard(self):
