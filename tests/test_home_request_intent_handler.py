@@ -57,6 +57,7 @@ class TestHomeRequestIntentHandler(unittest.TestCase):
             'context': {
                 'System': {
                     'user': {
+                        'userId': 'TEST_USER_ID',
                         'permissions': {
                             'consentToken': 'TEST_CONSENT_TOKEN'
                         },

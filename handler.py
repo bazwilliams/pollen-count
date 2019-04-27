@@ -7,6 +7,7 @@ from __future__ import print_function
 import os
 
 from pypollen import Pollen
+from userdata import UserData
 from geopy.geocoders import Nominatim
 import requests
 
@@ -25,7 +26,7 @@ def lambda_handler(event, context):
                            event['session'])
 
     if event['request']['type'] == "LaunchRequest":
-        return on_launch(event['request'], event['session'])
+        return on_launch(event['request'], event['session'], event['context'])
     elif event['request']['type'] == "IntentRequest":
         return on_intent(event['request'], event['session'], event['context'])
     elif event['request']['type'] == "SessionEndedRequest":
@@ -39,15 +40,21 @@ def on_session_started(session_started_request, session):
           + ", sessionId=" + session['sessionId'])
 
 
-def on_launch(launch_request, session):
+def on_launch(launch_request, session, context):
     """ Called when the user launches the skill without specifying what they
     want
     """
 
     print("on_launch requestId=" + launch_request['requestId'] +
           ", sessionId=" + session['sessionId'])
-    # Dispatch to your skill's launch
-    return get_welcome_response()
+    
+    user_id = context['System']['user']['userId']
+    existing_location = UserData().get(user_id)
+
+    if existing_location is None:
+        return get_welcome_response()
+    else:
+        return handle_request(existing_location.city, 'Welcome back! ')
 
 
 def on_intent(intent_request, session, context):
@@ -101,7 +108,7 @@ def handle_location_request(intent):
     city = intent['slots']['Location']['value']
     return handle_request(city)
 
-def handle_request(city):
+def handle_request(city, greet = ''):
     """ Handle a request for the provided city """
     session_attributes = {}
 
@@ -112,7 +119,7 @@ def handle_request(city):
             card_title = "Pollen Count"
             should_end_session = True
             reprompt_text = None
-            speech_output = "Today in %s, the Pollen Count is %s" % (city, pollen_count)
+            speech_output = "%sToday in %s, the Pollen Count is %s" % (greet, city, pollen_count)
 
             return build_response(session_attributes, build_speechlet_response(
                 card_title, speech_output, reprompt_text, should_end_session))

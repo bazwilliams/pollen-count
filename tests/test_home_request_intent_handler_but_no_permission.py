@@ -25,6 +25,7 @@ class TestHomeRequestWithNoPermission(unittest.TestCase):
             'context': {
                 'System': {
                     'user': {
+                        'userId': 'TEST_USER_ID',
                         'permissions': {
                         },
                     },

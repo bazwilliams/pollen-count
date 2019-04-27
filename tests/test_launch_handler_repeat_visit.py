@@ -1,8 +1,25 @@
 import unittest
 import os
+import mock
 import handler as sut
 
-class TestLaunchIntentHandler(unittest.TestCase):
+class fakeLocation():
+    @property
+    def latitude(self):
+        return 55.8642
+
+    @property
+    def longitude(self):
+        return -4.2518
+    
+    @property
+    def city(self):
+        return 'glasgow'
+
+class TestLaunchIntentHandlerRepeatVisit(unittest.TestCase):
+    @mock.patch.object(sut.Pollen, 'pollencount', "Awful")
+    @mock.patch.object(sut.UserData, 'get', lambda self, location: fakeLocation())
+    @mock.patch.object(sut.Nominatim, 'geocode', lambda self, city: fakeLocation())
     def setUp(self):
         os.environ['SKILL_ID'] = "TEST_SKILL_ID"
         self.context = {}
@@ -31,17 +48,19 @@ class TestLaunchIntentHandler(unittest.TestCase):
         self.assertEqual(
             self.result['response']['outputSpeech'],
             {
-                'text': "Welcome to Pollen Count, you can request the pollen count for your "\
-                 "current location by saying 'give me an update'. You can also ask for "\
-                 "the count anywhere in the UK by asking, 'what is the pollen count in "\
-                 "Glasgow'. How can I help? ",
+                'text': "Welcome back! Today in glasgow, the Pollen Count is Awful",
                 'type': "PlainText"})
 
-    def testShouldNotHaveCard(self):
-        self.assertFalse(self.result['response'].get('card'))
+    def testCard(self):
+        self.assertEqual(
+            self.result['response']['card'],
+            {
+                'title': "Pollen Count",
+                'content': "Welcome back! Today in glasgow, the Pollen Count is Awful",
+                'type': "Simple"})
 
-    def testShouldNotEndSession(self):
-        self.assertFalse(self.result['response']['shouldEndSession'])
+    def testShouldEndSession(self):
+        self.assertTrue(self.result['response']['shouldEndSession'])
 
     def testResponse(self):
         self.assertEqual(self.result['sessionAttributes'], {})

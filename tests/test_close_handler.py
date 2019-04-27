@@ -20,7 +20,13 @@ class TestStopIntentHandler(unittest.TestCase):
                     'name': 'AMAZON.StopIntent'
                 }
             },
-            'context':{}
+            'context': {
+                'System': {
+                    'user': {
+                        'userId': 'TEST_USER_ID'
+                    }
+                }
+            }
         }
         self.result = sut.lambda_handler(self.event, self.context)
 
