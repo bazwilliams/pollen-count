@@ -137,6 +137,15 @@ def handle_request(city):
 
         return build_response(session_attributes, build_speech_response(
             speech_output, reprompt_text, should_end_session))
+    except RuntimeError as e:
+        should_end_session = True
+        reprompt_text = None
+        speech_output = "I'm sorry, the UK Social Pollen Count service this "\
+            "skill uses is having difficulties at the moment. As a result, I can't give "\
+            "you an update for %s. " % city
+
+        return build_response(session_attributes, build_speech_response(
+            speech_output, reprompt_text, should_end_session))
 
 def get_welcome_response():
     """ Welcome the user and suggest an utterance """
